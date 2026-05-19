@@ -253,54 +253,108 @@
                 android:letterSpacing="0.2"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- BPM row -->
+            <!-- BPM row: [col−] [display] [col+] -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="12dp">
 
-                <Button
-                    android:id="@+id/btnBpmMinus"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:text="−"
-                    android:textSize="28sp"
-                    android:textColor="@color/bpm"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                <!-- Left: -5 / -1 / -0.1 -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <Button
+                        android:id="@+id/btnBpm5Minus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="-5"
+                        android:textSize="14sp"
+                        android:textColor="@color/bpm"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                    <Button
+                        android:id="@+id/btnBpm1Minus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="-1"
+                        android:textSize="14sp"
+                        android:textColor="@color/bpm"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                    <Button
+                        android:id="@+id/btnBpmD1Minus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="-0.1"
+                        android:textSize="12sp"
+                        android:textColor="@color/bpm"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvBpm"
+                <!-- Center: BPM value + label -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="120"
-                    android:textColor="@color/bpm"
-                    android:textSize="72sp"
-                    android:textStyle="bold"
-                    android:fontFamily="monospace"/>
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tvBpm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="120.0"
+                        android:textColor="@color/bpm"
+                        android:textSize="52sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="BPM"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.15"/>
+                </LinearLayout>
 
-                <Button
-                    android:id="@+id/btnBpmPlus"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:text="+"
-                    android:textSize="28sp"
-                    android:textColor="@color/bpm"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                <!-- Right: +5 / +1 / +0.1 -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <Button
+                        android:id="@+id/btnBpm5Plus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="+5"
+                        android:textSize="14sp"
+                        android:textColor="@color/bpm"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                    <Button
+                        android:id="@+id/btnBpm1Plus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="+1"
+                        android:textSize="14sp"
+                        android:textColor="@color/bpm"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                    <Button
+                        android:id="@+id/btnBpmD1Plus"
+                        android:layout_width="72dp"
+                        android:layout_height="44dp"
+                        android:text="+0.1"
+                        android:textSize="12sp"
+                        android:textColor="@color/bpm"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="BPM"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:letterSpacing="0.15"
-                android:layout_marginBottom="16dp"/>
 
             <Button
                 android:id="@+id/btnMetro"

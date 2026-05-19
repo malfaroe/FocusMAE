@@ -10,6 +10,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.focusmae.databinding.ActivityMainBinding
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,9 +39,9 @@ class MainActivity : AppCompatActivity() {
 
     // ── Metronome ────────────────────────────────────────────────────────────
 
-    private var bpm          = 120
-    private var metroRunning = false
-    private var nextBeatTime = 0L
+    private var bpm              = 120.0f
+    private var metroRunning     = false
+    private var nextBeatTimeMs   = 0.0   // Double for precise sub-ms accumulation
 
     // Dedicated background thread — never blocked by UI redraws
     private val metroThread  = HandlerThread("metro-clock").also { it.start() }
@@ -49,9 +50,9 @@ class MainActivity : AppCompatActivity() {
         override fun run() {
             if (!metroRunning) return
             sound.playClick()
-            // Schedule next beat at absolute time to prevent cumulative drift
-            nextBeatTime += 60000L / bpm
-            metroHandler.postAtTime(this, nextBeatTime)
+            // Accumulate in Double to keep fractional BPM drift-free
+            nextBeatTimeMs += 60000.0 / bpm
+            metroHandler.postAtTime(this, nextBeatTimeMs.toLong())
         }
     }
 
@@ -157,16 +158,26 @@ class MainActivity : AppCompatActivity() {
     // ── Metronome setup ───────────────────────────────────────────────────────
 
     private fun setupMetronome() {
-        b.tvBpm.text = bpm.toString()
-        b.btnBpmMinus.setOnClickListener { bpm = (bpm - 1).coerceAtLeast(40);  b.tvBpm.text = bpm.toString() }
-        b.btnBpmPlus.setOnClickListener  { bpm = (bpm + 1).coerceAtMost(240); b.tvBpm.text = bpm.toString() }
-        b.btnMetro.setOnClickListener    { if (metroRunning) stopMetro() else startMetro() }
+        b.tvBpm.text = "%.1f".format(bpm)
+        b.btnBpm5Minus.setOnClickListener  { changeBpm(-5.0f) }
+        b.btnBpm1Minus.setOnClickListener  { changeBpm(-1.0f) }
+        b.btnBpmD1Minus.setOnClickListener { changeBpm(-0.1f) }
+        b.btnBpm5Plus.setOnClickListener   { changeBpm(+5.0f) }
+        b.btnBpm1Plus.setOnClickListener   { changeBpm(+1.0f) }
+        b.btnBpmD1Plus.setOnClickListener  { changeBpm(+0.1f) }
+        b.btnMetro.setOnClickListener      { if (metroRunning) stopMetro() else startMetro() }
+    }
+
+    private fun changeBpm(delta: Float) {
+        bpm = ((bpm + delta) * 10).roundToInt() / 10.0f   // round to 1 decimal
+        bpm = bpm.coerceIn(40.0f, 240.0f)
+        b.tvBpm.text = "%.1f".format(bpm)
     }
 
     private fun startMetro() {
         metroRunning = true
         setMetroButton(stop = true)
-        nextBeatTime = SystemClock.uptimeMillis()
+        nextBeatTimeMs = SystemClock.uptimeMillis().toDouble()
         metroHandler.post(metroTicker)
     }
 
