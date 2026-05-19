@@ -19,18 +19,17 @@ class SoundPlayer {
         playToneSync(659f, 600)
     }.start()
 
-    // Wood-block click: 800 Hz fundamental + 0.25 of 1600 Hz harmonic,
-    // 200 ms buffer (safely above device minimum), exp(-22) decay ≈ 40 ms audible.
+    // Warm "tok": 400 Hz sine, 2 ms attack, exp(-30) decay ≈ 25 ms audible.
+    // 200 ms buffer ensures we're always above device minBufferSize.
     private fun playClickSync() {
         val rate = 44100
         val ms   = 200
-        val n    = rate * ms / 1000   // 8820 samples — well above any device minimum
+        val n    = rate * ms / 1000
         val buf  = ShortArray(n)
-        val attackSamples = (rate * 0.002).toInt()   // 2 ms attack
+        val attackSamples = (rate * 0.002).toInt()
         for (i in buf.indices) {
-            val env  = (if (i < attackSamples) i.toDouble() / attackSamples else 1.0) * exp(-22.0 * i / n)
-            val wave = sin(2.0 * PI * 800.0 * i / rate) + 0.25 * sin(2.0 * PI * 1600.0 * i / rate)
-            buf[i]   = (env * wave / 1.25 * 0.92 * Short.MAX_VALUE).toInt().toShort()
+            val env  = (if (i < attackSamples) i.toDouble() / attackSamples else 1.0) * exp(-30.0 * i / n)
+            buf[i]   = (env * sin(2.0 * PI * 400.0 * i / rate) * 0.98 * Short.MAX_VALUE).toInt().toShort()
         }
         playBuf(buf, rate, ms)
     }

@@ -3,7 +3,9 @@ package com.focusmae
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
+import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
@@ -38,13 +40,18 @@ class MainActivity : AppCompatActivity() {
 
     private var bpm          = 120
     private var metroRunning = false
+    private var nextBeatTime = 0L
 
-    private val metroHandler = Handler(Looper.getMainLooper())
+    // Dedicated background thread — never blocked by UI redraws
+    private val metroThread  = HandlerThread("metro-clock").also { it.start() }
+    private val metroHandler = Handler(metroThread.looper)
     private val metroTicker  = object : Runnable {
         override fun run() {
             if (!metroRunning) return
             sound.playClick()
-            metroHandler.postDelayed(this, 60000L / bpm)
+            // Schedule next beat at absolute time to prevent cumulative drift
+            nextBeatTime += 60000L / bpm
+            metroHandler.postAtTime(this, nextBeatTime)
         }
     }
 
@@ -63,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         tabataHandler.removeCallbacks(tabataTicker)
         metroHandler.removeCallbacks(metroTicker)
+        metroThread.quit()
     }
 
     // ── Tabata setup ──────────────────────────────────────────────────────────
@@ -150,14 +158,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMetronome() {
         b.tvBpm.text = bpm.toString()
-        b.btnBpmMinus.setOnClickListener { bpm = (bpm - 5).coerceAtLeast(40);  b.tvBpm.text = bpm.toString() }
-        b.btnBpmPlus.setOnClickListener  { bpm = (bpm + 5).coerceAtMost(240); b.tvBpm.text = bpm.toString() }
+        b.btnBpmMinus.setOnClickListener { bpm = (bpm - 1).coerceAtLeast(40);  b.tvBpm.text = bpm.toString() }
+        b.btnBpmPlus.setOnClickListener  { bpm = (bpm + 1).coerceAtMost(240); b.tvBpm.text = bpm.toString() }
         b.btnMetro.setOnClickListener    { if (metroRunning) stopMetro() else startMetro() }
     }
 
     private fun startMetro() {
         metroRunning = true
         setMetroButton(stop = true)
+        nextBeatTime = SystemClock.uptimeMillis()
         metroHandler.post(metroTicker)
     }
 

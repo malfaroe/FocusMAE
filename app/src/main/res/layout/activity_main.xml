@@ -265,8 +265,8 @@
                     android:id="@+id/btnBpmMinus"
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:text="-5"
-                    android:textSize="18sp"
+                    android:text="−"
+                    android:textSize="28sp"
                     android:textColor="@color/bpm"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
@@ -286,8 +286,8 @@
                     android:id="@+id/btnBpmPlus"
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:text="+5"
-                    android:textSize="18sp"
+                    android:text="+"
+                    android:textSize="28sp"
                     android:textColor="@color/bpm"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             </LinearLayout>
