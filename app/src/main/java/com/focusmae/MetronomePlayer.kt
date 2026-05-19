@@ -15,14 +15,17 @@ class MetronomePlayer {
     private val rate     = 44100
     private val clickBuf = buildClick()
 
-    // 400 Hz, 150 ms, exp(-30) decay — audible ~50 ms, warm "tok"
+    // 1131 Hz (400 Hz × 2^1.5 = +1.5 octaves), 150 ms, exp(-30) decay ≈ 50 ms audible.
+    // Amplitude ×4 with hard clip → louder perceived volume (+400%), slight square-wave saturation.
     private fun buildClick(): ShortArray {
         val n      = rate * 150 / 1000
         val buf    = ShortArray(n)
         val attack = (rate * 0.002).toInt()
+        val cap    = Short.MAX_VALUE.toDouble()
         for (i in 0 until n) {
             val env = (if (i < attack) i.toDouble() / attack else 1.0) * exp(-30.0 * i / n)
-            buf[i]  = (env * sin(2.0 * PI * 400.0 * i / rate) * Short.MAX_VALUE).toInt().toShort()
+            val raw = env * sin(2.0 * PI * 1131.0 * i / rate) * cap * 4.0
+            buf[i]  = raw.coerceIn(-cap, cap).toInt().toShort()
         }
         return buf
     }
