@@ -3,9 +3,7 @@ package com.focusmae
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
-import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
@@ -39,22 +37,9 @@ class MainActivity : AppCompatActivity() {
 
     // ── Metronome ────────────────────────────────────────────────────────────
 
-    private var bpm              = 120.0f
-    private var metroRunning     = false
-    private var nextBeatTimeMs   = 0.0   // Double for precise sub-ms accumulation
-
-    // Dedicated background thread — never blocked by UI redraws
-    private val metroThread  = HandlerThread("metro-clock").also { it.start() }
-    private val metroHandler = Handler(metroThread.looper)
-    private val metroTicker  = object : Runnable {
-        override fun run() {
-            if (!metroRunning) return
-            sound.playClick()
-            // Accumulate in Double to keep fractional BPM drift-free
-            nextBeatTimeMs += 60000.0 / bpm
-            metroHandler.postAtTime(this, nextBeatTimeMs.toLong())
-        }
-    }
+    private var bpm          = 120.0f
+    private var metroRunning = false
+    private val metro        = MetronomePlayer()
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -70,8 +55,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         tabataHandler.removeCallbacks(tabataTicker)
-        metroHandler.removeCallbacks(metroTicker)
-        metroThread.quit()
+        metro.stop()
     }
 
     // ── Tabata setup ──────────────────────────────────────────────────────────
@@ -166,24 +150,28 @@ class MainActivity : AppCompatActivity() {
         b.btnBpm1Plus.setOnClickListener   { changeBpm(+1.0f) }
         b.btnBpmD1Plus.setOnClickListener  { changeBpm(+0.1f) }
         b.btnMetro.setOnClickListener      { if (metroRunning) stopMetro() else startMetro() }
+        b.sliderVolume.value = 85f
+        b.sliderVolume.addOnChangeListener { _, value, _ -> metro.volume = value / 100f }
     }
 
     private fun changeBpm(delta: Float) {
-        bpm = ((bpm + delta) * 10).roundToInt() / 10.0f   // round to 1 decimal
+        bpm = ((bpm + delta) * 10).roundToInt() / 10.0f
         bpm = bpm.coerceIn(40.0f, 240.0f)
         b.tvBpm.text = "%.1f".format(bpm)
+        metro.bpm = bpm
     }
 
     private fun startMetro() {
         metroRunning = true
+        metro.bpm    = bpm
+        metro.volume = b.sliderVolume.value / 100f
+        metro.start()
         setMetroButton(stop = true)
-        nextBeatTimeMs = SystemClock.uptimeMillis().toDouble()
-        metroHandler.post(metroTicker)
     }
 
     private fun stopMetro() {
         metroRunning = false
-        metroHandler.removeCallbacks(metroTicker)
+        metro.stop()
         setMetroButton(stop = false)
     }
 

@@ -356,6 +356,32 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Volume slider -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VOL"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.15"
+                    android:layout_marginEnd="8dp"/>
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderVolume"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:valueFrom="0"
+                    android:valueTo="100"
+                    android:value="85"
+                    android:stepSize="1"/>
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btnMetro"
                 android:layout_width="match_parent"
